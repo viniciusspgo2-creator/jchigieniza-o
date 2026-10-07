@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --navy-0: #071227;
+    --navy-1: #0B1F44;
+    --navy-2: #10306B;
+    --aqua: #6FD2F6;
+    --aqua-soft: rgba(111, 210, 246, 0.16);
+    --ice: #F6F9FC;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #222; font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif; }
+  .cover {
+    position: relative; width: 1200px; height: 675px; overflow: hidden;
+    background:
+      radial-gradient(760px 520px at 88% -8%, rgba(111,210,246,0.20), transparent 62%),
+      radial-gradient(900px 640px at -12% 112%, rgba(16,48,107,0.85), transparent 66%),
+      linear-gradient(128deg, #081428 0%, var(--navy-1) 52%, #0E2A5E 100%);
+    color: #fff;
+  }
+  .cover::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: radial-gradient(rgba(255,255,255,0.055) 1.15px, transparent 1.15px);
+    background-size: 30px 30px;
+    mask-image: linear-gradient(120deg, rgba(0,0,0,.5), rgba(0,0,0,.16) 60%, rgba(0,0,0,.55));
+  }
+  .cover::after {
+    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px;
+    background: linear-gradient(90deg, transparent, rgba(111,210,246,0.85), rgba(111,210,246,0.12) 55%, transparent);
+  }
+  .inner { position: absolute; inset: 0; padding: 58px 64px 56px; display: flex; flex-direction: column; }
+
+  .topbar { display: flex; align-items: center; justify-content: space-between; }
+  .brandline { display: flex; align-items: center; gap: 14px; }
+  .brandmark {
+    width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center;
+    background: linear-gradient(135deg, rgba(111,210,246,0.22), rgba(111,210,246,0.07));
+    border: 1px solid rgba(111,210,246,0.45);
+    font-weight: 800; font-size: 17px; letter-spacing: 0.02em; color: var(--aqua);
+  }
+  .brandname { font-weight: 800; font-size: 19px; letter-spacing: 0.01em; }
+  .brandname small { display: block; font-family: 'Inter'; font-weight: 600; font-size: 11.5px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(246,249,252,0.62); margin-top: 3px; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: 'Inter'; font-weight: 700; font-size: 13.5px; letter-spacing: 0.26em; text-transform: uppercase;
+    color: var(--aqua);
+    padding: 10px 18px; border-radius: 999px;
+    background: var(--aqua-soft); border: 1px solid rgba(111,210,246,0.35);
+  }
+  .eyebrow::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--aqua); box-shadow: 0 0 10px rgba(111,210,246,0.9); }
+
+  .body { flex: 1; display: flex; align-items: center; gap: 30px; }
+  .titleblock { flex: 1.25; min-width: 0; }
+  .title { font-weight: 800; font-size: 56px; line-height: 1.12; letter-spacing: -0.015em; text-wrap: balance; }
+  .title .hl { color: var(--aqua); }
+  .subtitle { margin-top: 22px; font-family: 'Inter'; font-weight: 500; font-size: 17.5px; line-height: 1.55; color: rgba(246,249,252,0.72); max-width: 560px; }
+
+  .artzone { flex: 0.85; display: grid; place-items: center; position: relative; }
+  .artframe { position: relative; width: 330px; height: 330px; display: grid; place-items: center; }
+  .artframe .ring1 { position: absolute; inset: 0; border-radius: 50%; border: 1.5px dashed rgba(111,210,246,0.35); }
+  .artframe .ring2 { position: absolute; inset: 26px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.10); background: linear-gradient(160deg, rgba(111,210,246,0.10), rgba(255,255,255,0.03) 55%); box-shadow: 0 30px 70px rgba(3,10,26,0.55), inset 0 0 60px rgba(111,210,246,0.07); }
+  .artframe .orb { position: absolute; width: 26px; height: 26px; border-radius: 50%; background: radial-gradient(circle at 32% 30%, rgba(255,255,255,0.9), rgba(111,210,246,0.65)); box-shadow: 0 0 18px rgba(111,210,246,0.55); }
+  .artframe .orb.o1 { top: -4px; right: 42px; width: 18px; height: 18px; }
+  .artframe .orb.o2 { bottom: 8px; left: 8px; width: 12px; height: 12px; opacity: 0.8; }
+  .artframe svg.icon { width: 168px; height: 168px; }
+
+  .footer { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 20px; }
+  .footer .left { display: flex; align-items: center; gap: 16px; }
+  .footer img.logo { height: 40px; width: auto; display: block; }
+  .footer .sep { width: 1px; height: 30px; background: rgba(255,255,255,0.16); }
+  .footer .tag { font-family: 'Inter'; font-weight: 600; font-size: 13.5px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(246,249,252,0.66); }
+  .footer .dom { display: inline-flex; align-items: center; gap: 9px; font-family: 'Inter'; font-weight: 700; font-size: 13.5px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(246,249,252,0.86); }
+  .footer .dom .dot { width: 8px; height: 8px; border-radius: 50%; background: #2BD24B; box-shadow: 0 0 10px rgba(43,210,75,0.8); }
+</style>
+</head>
+<body>
+
+<!-- ============ CAPA 1 · SOFÁ GOIÂNIA ============ -->
+<section class="cover" id="capa-1">
+  <div class="inner">
+    <div class="topbar">
+      <div class="brandline">
+        <div class="brandmark">JC</div>
+        <div class="brandname">JC Lavagem a Seco<small>Higienização de estofados</small></div>
+      </div>
+      <span class="eyebrow">Guia de contratação</span>
+    </div>
+    <div class="body">
+      <div class="titleblock">
+        <h1 class="title">Higienização de <span class="hl">sofá</span> em Goiânia: o que avaliar antes de contratar</h1>
+        <p class="subtitle">Tecido, manchas, secagem e produtos: os pontos que um serviço sério avalia — e que você deve perguntar.</p>
+      </div>
+      <div class="artzone"><div class="artframe"><span class="ring1"></span><span class="ring2"></span><span class="orb o1"></span><span class="orb o2"></span>
+        <svg class="icon" viewBox="0 0 96 96" fill="none" stroke="#6FD2F6" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 44v-8a8 8 0 0 1 8-8h52a8 8 0 0 1 8 8v8" opacity="0.9"/>
+          <path d="M10 62a6 6 0 0 1 6-6h64a6 6 0 0 1 6 6v10a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4z" fill="rgba(111,210,246,0.10)"/>
+          <path d="M18 56v-6a6 6 0 0 1 6-6h48a6 6 0 0 1 6 6v6"/>
+          <path d="M16 76v6M80 76v6"/>
+          <path d="M30 34c2-4 6-6 10-6M52 28c6 0 10 3 12 7" opacity="0.45"/>
+        </svg>
+      </div></div>
+    </div>
+    <div class="footer">
+      <div class="left"><img class="logo" src="/home/z/my-project/public/img/brand/logo-jc-escuro.png" alt="" /><span class="sep"></span><span class="tag">Blog · Lavagem a seco</span></div>
+      <span class="dom"><span class="dot"></span>Atendimento a domicílio · Goiânia</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CAPA 2 · COLCHÃO ============ -->
+<section class="cover" id="capa-2">
+  <div class="inner">
+    <div class="topbar">
+      <div class="brandline">
+        <div class="brandmark">JC</div>
+        <div class="brandname">JC Lavagem a Seco<small>Higienização de estofados</small></div>
+      </div>
+      <span class="eyebrow">Saúde e descanso</span>
+    </div>
+    <div class="body">
+      <div class="titleblock">
+        <h1 class="title">Como saber se o <span class="hl">colchão</span> precisa de higienização</h1>
+        <p class="subtitle">Manchas amareladas, cheiro de umidade e espirros ao acordar: entenda os sinais.</p>
+      </div>
+      <div class="artzone"><div class="artframe"><span class="ring1"></span><span class="ring2"></span><span class="orb o1"></span><span class="orb o2"></span>
+        <svg class="icon" viewBox="0 0 96 96" fill="none" stroke="#6FD2F6" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 60V44a6 6 0 0 1 6-6h60a6 6 0 0 1 6 6v16" opacity="0.9"/>
+          <path d="M12 60h72v14a2 2 0 0 1-2 2H14a2 2 0 0 1-2-2z" fill="rgba(111,210,246,0.10)"/>
+          <path d="M20 38v-6a4 4 0 0 1 4-4h16a4 4 0 0 1 4 4v6M52 38v-6a4 4 0 0 1 4-4h16a4 4 0 0 1 4 4v6" opacity="0.75"/>
+          <path d="M16 76v4M80 76v4"/>
+          <path d="M48 50c3 3 3 7 0 10-3-3-3-7 0-10z" opacity="0.9"/>
+        </svg>
+      </div></div>
+    </div>
+    <div class="footer">
+      <div class="left"><img class="logo" src="/home/z/my-project/public/img/brand/logo-jc-escuro.png" alt="" /><span class="sep"></span><span class="tag">Blog · Higienização</span></div>
+      <span class="dom"><span class="dot"></span>Atendimento a domicílio · Goiânia</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CAPA 3 · ERROS ============ -->
+<section class="cover" id="capa-3">
+  <div class="inner">
+    <div class="topbar">
+      <div class="brandline">
+        <div class="brandmark">JC</div>
+        <div class="brandname">JC Lavagem a Seco<small>Higienização de estofados</small></div>
+      </div>
+      <span class="eyebrow">Erros comuns</span>
+    </div>
+    <div class="body">
+      <div class="titleblock">
+        <h1 class="title">Limpeza de sofá em casa: erros que <span class="hl">danificam</span> o tecido</h1>
+        <p class="subtitle">Alvejante, esfregação forte e excesso de água — o que evitar para não estragar o estofado.</p>
+      </div>
+      <div class="artzone"><div class="artframe"><span class="ring1"></span><span class="ring2"></span><span class="orb o1"></span><span class="orb o2"></span>
+        <svg class="icon" viewBox="0 0 96 96" fill="none" stroke="#6FD2F6" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M48 16 82 74a4 4 0 0 1-3.5 6h-61A4 4 0 0 1 14 74z" fill="rgba(111,210,246,0.10)"/>
+          <path d="M48 38v16"/>
+          <circle cx="48" cy="64" r="2.4" fill="#6FD2F6" stroke="none"/>
+          <path d="M30 12l2.4 5M66 12l-2.4 5M48 6v5.5" opacity="0.5"/>
+        </svg>
+      </div></div>
+    </div>
+    <div class="footer">
+      <div class="left"><img class="logo" src="/home/z/my-project/public/img/brand/logo-jc-escuro.png" alt="" /><span class="sep"></span><span class="tag">Blog · Cuidados</span></div>
+      <span class="dom"><span class="dot"></span>Atendimento a domicílio · Goiânia</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CAPA 4 · IMPERMEABILIZAÇÃO ============ -->
+<section class="cover" id="capa-4">
+  <div class="inner">
+    <div class="topbar">
+      <div class="brandline">
+        <div class="brandmark">JC</div>
+        <div class="brandname">JC Lavagem a Seco<small>Higienização de estofados</small></div>
+      </div>
+      <span class="eyebrow">Proteção de estofados</span>
+    </div>
+    <div class="body">
+      <div class="titleblock">
+        <h1 class="title"><span class="hl">Impermeabilização</span> de estofados: como funciona e os limites</h1>
+        <p class="subtitle">A barreira que retarda a absorção de líquidos — o que ela protege e o que ela não garante.</p>
+      </div>
+      <div class="artzone"><div class="artframe"><span class="ring1"></span><span class="ring2"></span><span class="orb o1"></span><span class="orb o2"></span>
+        <svg class="icon" viewBox="0 0 96 96" fill="none" stroke="#6FD2F6" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M48 10c14 10 22 22 22 34a22 22 0 0 1-44 0c0-12 8-24 22-34z" fill="rgba(111,210,246,0.10)"/>
+          <path d="M48 30c7 5 11 11 11 17a11 11 0 0 1-22 0c0-6 4-12 11-17z" opacity="0.85"/>
+          <path d="M30 78h36M36 85h24" opacity="0.5"/>
+        </svg>
+      </div></div>
+    </div>
+    <div class="footer">
+      <div class="left"><img class="logo" src="/home/z/my-project/public/img/brand/logo-jc-escuro.png" alt="" /><span class="sep"></span><span class="tag">Blog · Proteção</span></div>
+      <span class="dom"><span class="dot"></span>Atendimento a domicílio · Goiânia</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CAPA 5 · BANCOS DE CARRO ============ -->
+<section class="cover" id="capa-5">
+  <div class="inner">
+    <div class="topbar">
+      <div class="brandline">
+        <div class="brandmark">JC</div>
+        <div class="brandname">JC Lavagem a Seco<small>Higienização de estofados</small></div>
+      </div>
+      <span class="eyebrow">Interior veicular</span>
+    </div>
+    <div class="body">
+      <div class="titleblock">
+        <h1 class="title">Higienização de <span class="hl">bancos de carro</span>: cuidados com o interior</h1>
+        <p class="subtitle">Tecido ou couro: como funciona a limpeza profissional e os cuidados com cada material.</p>
+      </div>
+      <div class="artzone"><div class="artframe"><span class="ring1"></span><span class="ring2"></span><span class="orb o1"></span><span class="orb o2"></span>
+        <svg class="icon" viewBox="0 0 96 96" fill="none" stroke="#6FD2F6" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M34 14h10a6 6 0 0 1 6 6v14a6 6 0 0 0 6 6h4" opacity="0.9"/>
+          <path d="M30 46c0-6 5-11 11-11h6a8 8 0 0 1 8 8v10a8 8 0 0 0 8 8h8a8 8 0 0 1 8 8v4a4 4 0 0 1-4 4H36a6 6 0 0 1-6-6z" fill="rgba(111,210,246,0.10)"/>
+          <path d="M36 77v5M66 77v5"/>
+          <path d="M24 28h6M20 40h6" opacity="0.5"/>
+        </svg>
+      </div></div>
+    </div>
+    <div class="footer">
+      <div class="left"><img class="logo" src="/home/z/my-project/public/img/brand/logo-jc-escuro.png" alt="" /><span class="sep"></span><span class="tag">Blog · Veicular</span></div>
+      <span class="dom"><span class="dot"></span>Atendimento a domicílio · Goiânia</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CAPA 6 · CARRINHO DE BEBÊ ============ -->
+<section class="cover" id="capa-6">
+  <div class="inner">
+    <div class="topbar">
+      <div class="brandline">
+        <div class="brandmark">JC</div>
+        <div class="brandname">JC Lavagem a Seco<small>Higienização de estofados</small></div>
+      </div>
+      <span class="eyebrow">Cuidados infantis</span>
+    </div>
+    <div class="body">
+      <div class="titleblock">
+        <h1 class="title">Limpeza de <span class="hl">carrinho de bebê</span> e bebê conforto</h1>
+        <p class="subtitle">Tecidos, cintos e estruturas: cuidados com segurança e com as instruções do fabricante.</p>
+      </div>
+      <div class="artzone"><div class="artframe"><span class="ring1"></span><span class="ring2"></span><span class="orb o1"></span><span class="orb o2"></span>
+        <svg class="icon" viewBox="0 0 96 96" fill="none" stroke="#6FD2F6" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 42a26 26 0 0 1 26-26h2v26z" fill="rgba(111,210,246,0.10)"/>
+          <path d="M48 16a26 26 0 0 1 26 26H48z" opacity="0.8"/>
+          <path d="M20 42h54l-8 22a6 6 0 0 1-5.6 4H35.6A6 6 0 0 1 30 64z"/>
+          <path d="M32 68l-6 12M64 68l6 12"/>
+          <circle cx="24" cy="84" r="4"/><circle cx="72" cy="84" r="4"/>
+          <path d="M48 42V16" opacity="0.6"/>
+        </svg>
+      </div></div>
+    </div>
+    <div class="footer">
+      <div class="left"><img class="logo" src="/home/z/my-project/public/img/brand/logo-jc-escuro.png" alt="" /><span class="sep"></span><span class="tag">Blog · Infantil</span></div>
+      <span class="dom"><span class="dot"></span>Atendimento a domicílio · Goiânia</span>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,398 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-display: var(--font-jakarta), var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* ============================================================
+     PALETA JC LAVAGEM A SECO — "Deep Navy Fresh"
+     navy profundo (confiança) · ice (respiro) · ciano (frescor)
+     vermelho EXCLUSIVO para ação/CTA
+     ============================================================ */
+  --color-ice: #F6F9FC;
+  --color-ice-2: #EEF4FA;
+  --color-aqua-50: #ECF7FD;
+  --color-aqua-100: #D8F0FC;
+  --color-aqua-200: #B0E2F8;
+  --color-aqua-300: #6FD2F6;
+  --color-aqua-400: #38BEF0;
+  --color-brand: #0F63C8;
+  --color-brand-600: #0D54AA;
+  --color-brand-700: #0A438A;
+  --color-deep: #0B1F44;
+  --color-deep-600: #122B58;
+  --color-deep-800: #061530;
+  --color-action: #E11D2E;
+  --color-action-600: #C21422;
+  --color-ink: #10233F;
+  --color-ink-soft: #4A5D78;
+}
+
+:root {
+  --radius: 1rem;
+  --background: #FFFFFF;
+  --foreground: #10233F;
+  --card: #FFFFFF;
+  --card-foreground: #10233F;
+  --popover: #FFFFFF;
+  --popover-foreground: #10233F;
+  --primary: #0F63C8;
+  --primary-foreground: #FFFFFF;
+  --secondary: #ECF7FD;
+  --secondary-foreground: #0B1F44;
+  --muted: #F2F7FB;
+  --muted-foreground: #4A5D78;
+  --accent: #D8F0FC;
+  --accent-foreground: #0B1F44;
+  --destructive: #E11D2E;
+  --border: #E2EBF4;
+  --input: #E2EBF4;
+  --ring: #0F63C8;
+  --chart-1: #0F63C8;
+  --chart-2: #6FD2F6;
+  --chart-3: #0B1F44;
+  --chart-4: #E11D2E;
+  --chart-5: #B0E2F8;
+  --sidebar: #F6F9FC;
+  --sidebar-foreground: #10233F;
+  --sidebar-primary: #0F63C8;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #ECF7FD;
+  --sidebar-accent-foreground: #0B1F44;
+  --sidebar-border: #E2EBF4;
+  --sidebar-ring: #0F63C8;
+}
+
+.dark {
+  --background: #0B1F44;
+  --foreground: #F6F9FC;
+  --card: #122B58;
+  --card-foreground: #F6F9FC;
+  --popover: #122B58;
+  --popover-foreground: #F6F9FC;
+  --primary: #6FD2F6;
+  --primary-foreground: #0B1F44;
+  --secondary: #122B58;
+  --secondary-foreground: #F6F9FC;
+  --muted: #061530;
+  --muted-foreground: #A9C4DC;
+  --accent: #122B58;
+  --accent-foreground: #F6F9FC;
+  --destructive: #E11D2E;
+  --border: #1D3A6B;
+  --input: #1D3A6B;
+  --ring: #6FD2F6;
+  --sidebar: #061530;
+  --sidebar-foreground: #F6F9FC;
+  --sidebar-primary: #6FD2F6;
+  --sidebar-primary-foreground: #0B1F44;
+  --sidebar-accent: #122B58;
+  --sidebar-accent-foreground: #F6F9FC;
+  --sidebar-border: #1D3A6B;
+  --sidebar-ring: #6FD2F6;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv02", "cv03", "cv04", "ss01";
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 96px;
+  }
+  ::selection {
+    background: #0B1F44;
+    color: #FFFFFF;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+
+  /* ---------- sombras difusas (azuladas, nunca cinzas duras) ---------- */
+  .shadow-soft {
+    box-shadow:
+      0 1px 2px rgba(11, 31, 68, 0.04),
+      0 12px 32px -12px rgba(11, 31, 68, 0.14);
+  }
+  .shadow-lift {
+    box-shadow:
+      0 2px 4px rgba(11, 31, 68, 0.05),
+      0 24px 56px -16px rgba(11, 31, 68, 0.24);
+  }
+  .shadow-deep {
+    box-shadow: 0 32px 72px -20px rgba(6, 21, 48, 0.55);
+  }
+  .shadow-cta {
+    box-shadow:
+      0 2px 6px rgba(225, 29, 46, 0.24),
+      0 14px 32px -10px rgba(225, 29, 46, 0.5);
+  }
+  .shadow-cta-lg {
+    box-shadow:
+      0 4px 10px rgba(225, 29, 46, 0.25),
+      0 20px 44px -12px rgba(225, 29, 46, 0.55);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  /* ---------- gradientes de marca ---------- */
+  .bg-hero-navy {
+    background:
+      radial-gradient(1100px 520px at 85% -10%, rgba(111, 210, 246, 0.14), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(15, 99, 200, 0.22), transparent 55%),
+      linear-gradient(168deg, #0B1F44 0%, #0A1D3F 45%, #061530 100%);
+  }
+  .bg-band-navy {
+    background:
+      radial-gradient(720px 320px at 90% 0%, rgba(111, 210, 246, 0.16), transparent 60%),
+      radial-gradient(560px 300px at 0% 100%, rgba(15, 99, 200, 0.3), transparent 55%),
+      linear-gradient(150deg, #122B58 0%, #0B1F44 55%, #071A38 100%);
+  }
+  .text-gradient-frost {
+    background: linear-gradient(92deg, #FFFFFF 10%, #B0E2F8 55%, #6FD2F6 95%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* ---------- vidro leve (header, cards sobre foto) ---------- */
+  .glass-light {
+    background: rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  }
+  .glass-dark {
+    background: rgba(11, 31, 68, 0.55);
+    backdrop-filter: blur(14px) saturate(1.3);
+    -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  }
+
+  /* ---------- pulso do botão flutuante do WhatsApp ---------- */
+  .wa-pulse::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    background: rgba(225, 29, 46, 0.45);
+    animation: wa-pulse 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    z-index: -1;
+  }
+  @keyframes wa-pulse {
+    0% {
+      transform: scale(1);
+      opacity: 0.7;
+    }
+    70% {
+      transform: scale(1.65);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1.65);
+      opacity: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .wa-pulse::before {
+      display: none;
+    }
+  }
+
+  /* ondas do player de voz */
+  @keyframes wave {
+    0%,
+    100% {
+      transform: scaleY(0.6);
+    }
+    50% {
+      transform: scaleY(1.35);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-\[wave_1\.1s_ease-in-out_infinite\] {
+      animation: none !important;
+    }
+  }
+
+  /* botões flutuantes escondidos com o menu mobile aberto */
+  body.menu-open .float-action {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .float-action {
+    transition: opacity 0.2s ease;
+  }
+
+  /* ---------- luz que acompanha o cursor (hero) ---------- */
+  .cursor-glow::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(560px circle at var(--mx, 70%) var(--my, 30%), rgba(111, 210, 246, 0.13), transparent 65%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: 1;
+  }
+  .cursor-glow:hover::before {
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cursor-glow::before {
+      display: none;
+    }
+  }
+
+  /* ---------- scrollbar fina ---------- */
+  .thin-scroll::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .thin-scroll::-webkit-scrollbar-thumb {
+    background: #C7D8E8;
+    border-radius: 999px;
+  }
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* ---------- máscara de fade nas bordas do carrossel mobile ---------- */
+  .fade-edges {
+    mask-image: linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent);
+  }
+  @media (min-width: 1024px) {
+    .fade-edges {
+      mask-image: none;
+    }
+  }
+
+  /* ---------- artigo ---------- */
+  .prose-article {
+    font-size: 1.0625rem;
+  }
+  .prose-article h2 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.7rem;
+    line-height: 1.25;
+    margin-top: 2.4rem;
+    margin-bottom: 1rem;
+    color: var(--color-deep);
+  }
+  .prose-article h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.28rem;
+    margin-top: 1.8rem;
+    margin-bottom: 0.7rem;
+    color: var(--color-deep);
+  }
+  .prose-article p {
+    margin-bottom: 1.1rem;
+    line-height: 1.85;
+    color: #2A4059;
+  }
+  .prose-article ul,
+  .prose-article ol {
+    margin: 0 0 1.3rem 1.3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+  .prose-article ul {
+    list-style: disc;
+  }
+  .prose-article ol {
+    list-style: decimal;
+  }
+  .prose-article li {
+    line-height: 1.75;
+    color: #2A4059;
+    padding-left: 0.3rem;
+  }
+  .prose-article a {
+    color: var(--color-brand);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .prose-article strong {
+    color: var(--color-deep);
+  }
+  .prose-article blockquote {
+    border-left: 3px solid var(--color-aqua-300);
+    padding-left: 1.1rem;
+    color: var(--color-ink-soft);
+    font-style: italic;
+    margin: 1.4rem 0;
+  }
+}

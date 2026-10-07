@@ -1,0 +1,475 @@
+// JC Lavagem a Seco — schema (PostgreSQL para produção — Vercel + Neon)
+// Notas:
+// - Campos "enum" são String validados por zod na aplicação.
+// - Valores monetários em centavos (Int). Quantidades de estoque em unidade base Int (ml, g, un).
+// - Datas de preferência/agenda em "YYYY-MM-DD" (fuso America/Sao_Paulo), completas em DateTime UTC.
+// - Uploads de imagens ficam no PRÓPRIO BANCO (tabela StoredFile, tipo Bytes) e são servidos
+//   via /api/uploads/[...file] — ambientes serverless (Vercel) não têm filesystem persistente.
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============ AUTENTICAÇÃO / USUÁRIOS ============
+
+model User {
+  id           String               @id @default(cuid())
+  name         String
+  email        String               @unique
+  passwordHash String
+  role         String               @default("OPERADOR") // ADMIN | OPERADOR
+  active       Boolean              @default(true)
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  sessions     Session[]
+  resetTokens  PasswordResetToken[]
+  auditLogs    AuditLog[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  userAgent String?
+  ip        String?
+
+  @@index([userId])
+}
+
+model PasswordResetToken {
+  id          String    @id @default(cuid())
+  tokenHash   String    @unique
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt   DateTime
+  usedAt      DateTime?
+  requestedBy String    @default("self") // "self" | userId do admin
+  createdAt   DateTime  @default(now())
+
+  @@index([userId])
+}
+
+// ============ CLIENTES / SERVIÇOS / AGENDAMENTOS ============
+
+model Customer {
+  id             String       @id @default(cuid())
+  name           String
+  phone          String       @unique // normalizado +55DDNNNNNNNNN
+  email          String?
+  addressStreet  String?
+  addressDistrict String?
+  addressCity    String?
+  addressState   String?
+  addressZip     String?
+  addressRef     String?
+  notes          String?
+  archived       Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  bookings       Booking[]
+  transactions   Transaction[]
+
+  @@index([name])
+}
+
+model ServiceCategory {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  icon        String? // nome do ícone lucide
+  sortOrder   Int       @default(0)
+  active      Boolean   @default(true)
+  services    Service[]
+}
+
+model Service {
+  id            String       @id @default(cuid())
+  categoryId    String
+  category      ServiceCategory @relation(fields: [categoryId], references: [id])
+  name          String
+  slug          String       @unique
+  description   String
+  durationMin   Int          @default(120) // duração estimada (min)
+  whatsappMsg   String? // mensagem personalizada de orçamento
+  visibleOnSite Boolean      @default(true)
+  active        Boolean      @default(true)
+  sortOrder     Int          @default(0)
+  bookings      Booking[]
+
+  @@index([categoryId])
+}
+
+model Booking {
+  id              String                @id @default(cuid())
+  protocol        String                @unique // JC-AAAA-XXXXXX
+  customerId      String?
+  customer        Customer?             @relation(fields: [customerId], references: [id])
+  name            String
+  phone           String
+  serviceId       String
+  service         Service               @relation(fields: [serviceId], references: [id])
+  itemCount       Int
+  district        String
+  streetAddress   String
+  city            String                @default("Goiânia")
+  addressRef      String?
+  preferredDate   String // YYYY-MM-DD (fuso SP)
+  timeSlot        String // "08:00" janela ou periodo
+  period          String? // MANHA | TARDE | NOITE (janela livre)
+  notes           String?
+  photos          String? // JSON array de URLs de arquivos enviados
+  status          String                @default("SOLICITADO") // SOLICITADO | EM_ANALISE | CONFIRMADO | EM_ATENDIMENTO | CONCLUIDO | CANCELADO
+  privacyAccepted Boolean               @default(true)
+  scheduledAt     DateTime? // montado de preferredDate+slot (fuso SP -> UTC)
+  confirmedAt     DateTime?
+  completedAt     DateTime?
+  cancelledAt     DateTime?
+  cancelReason    String?
+  internalNotes   String?
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  notifications   Notification[]
+  stockMovements  InventoryMovement[]
+  transaction     Transaction?
+
+  @@index([status])
+  @@index([preferredDate])
+  @@index([phone])
+}
+
+// Horário de atendimento por dia da semana
+model BusinessHours {
+  id              String @id @default(cuid())
+  weekday         Int    @unique // 0=domingo ... 6=sábado
+  active          Boolean @default(true)
+  openTime        String? // "08:00"
+  closeTime       String? // "18:00"
+  slotMinutes     Int    @default(120) // tamanho da janela de agendamento
+  capacityPerSlot Int    @default(1)
+  breakStart      String?
+  breakEnd        String?
+}
+
+// Folga / bloqueio de agenda
+model DayBlocking {
+  id        String   @id @default(cuid())
+  date      String // YYYY-MM-DD
+  timeSlot  String? // null = dia inteiro
+  reason    String?
+  createdAt DateTime @default(now())
+  createdBy String?
+
+  @@unique([date, timeSlot])
+}
+
+// ============ CHATBOT ============
+
+model ChatFaq {
+  id         String   @id @default(cuid())
+  question   String
+  answer     String
+  keywords   String // palavras-chave separadas por vírgula
+  active     Boolean  @default(true)
+  showOnSite Boolean  @default(true) // aparece na seção de dúvidas do site
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model ChatConversation {
+  id        String        @id @default(cuid())
+  sessionId String
+  startedAt DateTime      @default(now())
+  lastAt    DateTime      @default(now())
+  messages  ChatMessage[]
+
+  @@index([sessionId])
+}
+
+model ChatMessage {
+  id            String          @id @default(cuid())
+  conversationId String
+  conversation  ChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role          String // user | assistant
+  content       String
+  matchedFaqId  String?
+  createdAt     DateTime        @default(now())
+
+  @@index([conversationId])
+}
+
+// ============ BLOG / GALERIA / CONTEÚDO ============
+
+model Post {
+  id              String    @id @default(cuid())
+  title           String
+  slug            String    @unique
+  excerpt         String
+  content         String // markdown (renderizado com react-markdown, sem HTML cru)
+  metaTitle       String?
+  metaDescription String?
+  coverImage      String?
+  coverAlt        String?
+  authorName      String    @default("Equipe JC Lavagem a Seco")
+  status          String    @default("DRAFT") // DRAFT | PUBLISHED
+  publishedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([status, publishedAt])
+}
+
+model GalleryItem {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  category    String? // casa | infantil | veicular | protecao
+  image       String // imagem principal (comparativo completo ou resultado)
+  imageAlt    String
+  beforeImage String? // p/ comparador
+  afterImage  String? // p/ comparador
+  isComparator Boolean @default(false)
+  active      Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+model SiteContent {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String // JSON publicado
+  draft     String? // JSON de rascunho
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+}
+
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+// ============ ARMAZENAMENTO DE IMAGENS (sem disco — serverless-safe) ============
+
+/// Imagens enviadas pelo painel (/api/uploads/admin) e pelo formulário público
+/// (/api/uploads/public), já processadas com sharp. Servidas por /api/uploads/[...file].
+model StoredFile {
+  id        String   @id @default(cuid())
+  name      String   @unique // nome gerado, ex.: img-1717...-ab12cd.webp
+  scope     String   @default("public") // admin | public
+  mime      String   @default("image/webp")
+  size      Int // bytes
+  data      Bytes // conteúdo binário (Neon/Postgres)
+  createdAt DateTime @default(now())
+
+  @@index([scope])
+}
+
+// ============ FINANCEIRO ============
+
+model FinancialCategory {
+  id         String        @id @default(cuid())
+  name       String
+  type       String // INCOME | EXPENSE
+  active     Boolean       @default(true)
+  transactions Transaction[]
+
+  @@index([type])
+}
+
+model FinancialAccount {
+  id           String        @id @default(cuid())
+  name         String
+  type         String? // CAIXA | BANCO | PIX | OUTRO
+  active       Boolean       @default(true)
+  transactions Transaction[]
+}
+
+model PaymentMethod {
+  id           String               @id @default(cuid())
+  name         String
+  active       Boolean              @default(true)
+  sortOrder    Int                  @default(0)
+  transactions Transaction[]
+  payments     TransactionPayment[]
+}
+
+model Supplier {
+  id           String          @id @default(cuid())
+  name         String
+  contactName  String?
+  phone        String?
+  email        String?
+  products     String?
+  notes        String?
+  archived     Boolean         @default(false)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  transactions Transaction[]
+  inventoryItems InventoryItem[]
+
+  @@index([name])
+}
+
+// Lançamento previsto (PENDENTE) ou liquidado (PAGO). Pagamentos parciais em TransactionPayment.
+model Transaction {
+  id             String               @id @default(cuid())
+  type           String // INCOME | EXPENSE
+  kind           String               @default("AVULSO") // RECEITA_SERVICO | RECEITA_AVULSA | DESPESA
+  description    String
+  amountCents    Int // valor total em centavos
+  status         String               @default("PENDENTE") // PENDENTE | PAGO | CANCELADO
+  dueDate        String? // YYYY-MM-DD
+  paidAt         DateTime?
+  customerId     String?
+  customer       Customer?            @relation(fields: [customerId], references: [id])
+  supplierId     String?
+  supplier       Supplier?            @relation(fields: [supplierId], references: [id])
+  bookingId      String?              @unique // idempotência: 1 receita por OS
+  booking        Booking?             @relation(fields: [bookingId], references: [id])
+  categoryId     String?
+  category       FinancialCategory?   @relation(fields: [categoryId], references: [id])
+  accountId      String?
+  account        FinancialAccount?    @relation(fields: [accountId], references: [id])
+  paymentMethodId String?
+  paymentMethod  PaymentMethod?       @relation(fields: [paymentMethodId], references: [id])
+  installments   Int                  @default(1)
+  installmentNo  Int                  @default(1)
+  groupId        String?
+  notes          String?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  payments       TransactionPayment[]
+
+  @@index([type, status])
+  @@index([dueDate])
+  @@index([customerId])
+  @@index([supplierId])
+}
+
+// Movimentação efetiva de dinheiro (recebimento/pagamento, permite parciais)
+model TransactionPayment {
+  id            String        @id @default(cuid())
+  transactionId String
+  transaction   Transaction   @relation(fields: [transactionId], references: [id])
+  amountCents   Int
+  paidAt        DateTime
+  methodId      String?
+  method        PaymentMethod? @relation(fields: [methodId], references: [id])
+  accountId     String?
+  note          String?
+  createdAt     DateTime      @default(now())
+
+  @@index([transactionId])
+}
+
+// ============ ESTOQUE ============
+
+model InventoryItem {
+  id                String              @id @default(cuid())
+  name              String
+  category          String              @default("LIMPEZA") // LIMPEZA | IMPERMEABILIZANTE | EPI | FERRAMENTA | OUTRO
+  unit              String              @default("un") // unidade base: ml | g | un
+  displayUnit       String? // unidade preferida de exibição (L, kg, ml...)
+  quantity          Int                 @default(0) // saldo em unidade base
+  minQuantity       Int                 @default(0) // mínimo em unidade base
+  costCents         Int                 @default(0) // custo por unidade de compra
+  purchaseUnitAmount Int? // quantidade contida em 1 unidade de compra (ex: 1000 ml por frasco)
+  supplierId        String?
+  supplier          Supplier?           @relation(fields: [supplierId], references: [id])
+  expiryDate        String? // YYYY-MM-DD
+  archived          Boolean             @default(false)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  movements         InventoryMovement[]
+
+  @@index([category])
+}
+
+model InventoryMovement {
+  id           String   @id @default(cuid())
+  itemId       String
+  item         InventoryItem @relation(fields: [itemId], references: [id])
+  type         String // ENTRADA | SAIDA | CONSUMO | AJUSTE
+  quantity     Int // magnitude informada (sempre positiva)
+  delta        Int // variação aplicada (positiva ou negativa)
+  balanceAfter Int // saldo resultante
+  reason       String?
+  bookingId    String?
+  booking      Booking? @relation(fields: [bookingId], references: [id])
+  userId       String?
+  createdAt    DateTime @default(now())
+
+  @@index([itemId, createdAt])
+  @@index([bookingId])
+}
+
+// ============ NOTIFICAÇÕES / AUDITORIA / ANALYTICS ============
+
+model Notification {
+  id        String    @id @default(cuid())
+  type      String // AGENDAMENTO | ESTOQUE | FINANCEIRO | SISTEMA
+  title     String
+  message   String
+  link      String?
+  read      Boolean   @default(false)
+  readBy    String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+  bookingId String?
+  booking   Booking?  @relation(fields: [bookingId], references: [id])
+
+  @@index([read])
+  @@index([createdAt])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String // CREATE | UPDATE | DELETE | LOGIN | LOGOUT | PUBLISH | CONFIRMAR | etc.
+  entity    String
+  entityId  String?
+  details   String? // JSON
+  createdAt DateTime @default(now())
+
+  @@index([entity, createdAt])
+  @@index([userId])
+}
+
+// Analytics first-party, sem dados pessoais: sessionId = cookie anônimo aleatório
+model PageView {
+  id        String   @id @default(cuid())
+  sessionId String
+  path      String
+  referrer  String?
+  device    String? // mobile | desktop | tablet
+  isBot     Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([path])
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  sessionId String
+  type      String // WHATSAPP_CLICK | BOOKING_SUBMIT | PHONE_CLICK | INSTAGRAM_CLICK | CHAT_OPEN | CHAT_WHATSAPP
+  path      String?
+  meta      String?
+  createdAt DateTime @default(now())
+
+  @@index([type, createdAt])
+  @@index([createdAt])
+}
